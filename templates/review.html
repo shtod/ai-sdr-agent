@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}待复核 · AI SDR Agent{% endblock %}
+{% block content %}
+<h2 class="page-title">低置信度待复核线索</h2>
+
+{% if not leads %}
+  <div class="panel"><div class="empty">当前没有待复核线索。低置信度线索会自动进入此队列。</div></div>
+{% endif %}
+
+{% for lead in leads %}
+<div class="card">
+  <div class="card-header">
+    <strong>线索 {{ lead.id }}</strong>
+    <span class="badge review">置信度 {{ lead.confidence }}</span>
+    <span class="badge {{ lead.result.intent_level or 'low' }}">意向 {{ lead.result.intent_level or '未知' }}</span>
+    <span>抬头：{{ lead.result.company_name or '未识别' }}</span>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <h4>原始通话记录</h4>
+      <pre>{{ lead.transcript }}</pre>
+      <h4>Agent 判断依据</h4>
+      <div class="meta">
+        企业抬头：{{ lead.result._meta.company_reason or '无' }}<br><br>
+        意向评分：{{ lead.result.intent_reason or '无' }}
+      </div>
+    </div>
+    <div class="col">
+      <h4>抽取结果（可修正）</h4>
+      <form method="post">
+        <input type="hidden" name="action" value="save">
+        <input type="hidden" name="lead_id" value="{{ lead.id }}">
+        <label>企业抬头</label>
+        <input name="company_name" value="{{ lead.result.company_name or '' }}">
+        <label>意向等级</label>
+        <select name="intent_level">
+          {% for opt in intent_options %}
+            <option value="{{ opt }}" {% if opt == lead.result.intent_level %}selected{% endif %}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+        <label>客户需求</label>
+        <textarea name="demand_summary">{{ lead.result.demand_summary or '' }}</textarea>
+        <div class="others">其他字段：{{ lead.others }}</div>
+        <div class="actions">
+          <button type="submit">保存修正并反馈</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% if leads %}
+<div class="panel">
+  <h3>批量订正意向等级</h3>
+  <form method="post">
+    <input type="hidden" name="action" value="batch">
+    <div class="batch-row">
+      {% for lead in leads %}
+        <label style="display:inline-flex; gap:6px; align-items:center; margin:0;">
+          <input type="checkbox" name="lead_ids" value="{{ lead.id }}" style="width:auto;">
+          {{ lead.id }}
+        </label>
+      {% endfor %}
+      <select name="intent_level" style="width:140px;">
+        {% for opt in intent_options %}<option value="{{ opt }}">{{ opt }}</option>{% endfor %}
+      </select>
+      <button type="submit">批量应用意向等级</button>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

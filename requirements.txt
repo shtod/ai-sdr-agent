@@ -1,0 +1,4 @@
+openai>=1.30
+python-dotenv>=1.0
+flask>=3.0
+pypinyin>=0.51

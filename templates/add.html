@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}录入线索 · AI SDR Agent{% endblock %}
+{% block content %}
+<h2 class="page-title">录入新通话记录</h2>
+
+<div class="panel">
+  <form method="post" id="add-form">
+    <label for="transcript">销售电话沟通记录文本</label>
+    <textarea name="transcript" id="transcript" rows="8"
+      placeholder="粘贴销售电话沟通记录文本…（例如：销售：您好，请问是张总吗？…）"></textarea>
+    <div class="actions">
+      <button type="submit" id="add-btn">运行 Agent 并入库</button>
+    </div>
+    <div id="loading">⏳ Agent 分析中，请稍候（约 3–10 秒，正在依次做：意图识别 → 信息抽取 → 企业抬头还原 → 意向评分）…</div>
+  </form>
+</div>
+
+{% if last_result %}
+<div class="panel" id="result">
+  <h3>Agent 输出（已入库）</h3>
+  <div class="card-header">
+    <span class="badge {{ last_result.intent_level or 'low' }}">意向 {{ last_result.intent_level or '未知' }}</span>
+    <span class="badge {{ 'review' if last_result.need_human_review else 'gray' }}">{{ '待复核' if last_result.need_human_review else '已放行' }}</span>
+    <span>置信度 {{ last_result.confidence_score }}</span>
+    <span>企业抬头：{{ last_result.company_name or '未识别' }}</span>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <h4>结构化 SQL 线索（JSON）</h4>
+      <pre>{{ last_json }}</pre>
+    </div>
+    <div class="col">
+      <h4>Agent 判断依据</h4>
+      <div class="meta">
+        对话类型：{{ last_result._meta.conversation_type or '未知' }}<br><br>
+        企业抬头：{{ last_result._meta.company_reason or '无' }}<br><br>
+        意向评分：{{ last_result.intent_reason or '无' }}
+      </div>
+      <div class="actions">
+        {% if last_result.need_human_review %}
+          <a href="{{ url_for('review') }}"><button type="button">前往待复核队列处理</button></a>
+        {% endif %}
+        <a href="{{ url_for('leads') }}"><button type="button">查看全部线索</button></a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById('add-form').addEventListener('submit', function () {
+    document.getElementById('add-btn').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+  });
+</script>
+{% endblock %}

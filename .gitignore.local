@@ -1,0 +1,12 @@
+# 密钥与本地数据
+.env
+leads.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 临时文件
+_docx_extract.txt

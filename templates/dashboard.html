@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}概览 · AI SDR Agent{% endblock %}
+{% block content %}
+<h2 class="page-title">概览</h2>
+
+<div class="stat-grid">
+  <div class="stat"><div class="num">{{ stats.total }}</div><div class="lbl">全部线索</div></div>
+  <div class="stat"><div class="num">{{ stats.pending }}</div><div class="lbl">待人工复核</div></div>
+  <div class="stat"><div class="num">{{ stats.corrected }}</div><div class="lbl">已修正反馈</div></div>
+  <div class="stat high"><div class="num">{{ stats.dist.get('high', 0) }}</div><div class="lbl">高意向</div></div>
+  <div class="stat medium"><div class="num">{{ stats.dist.get('medium', 0) }}</div><div class="lbl">中意向</div></div>
+  <div class="stat low"><div class="num">{{ stats.dist.get('low', 0) }}</div><div class="lbl">低意向</div></div>
+</div>
+
+<div class="panel">
+  <h3>快捷操作</h3>
+  <div class="actions">
+    <a href="{{ url_for('add') }}"><button type="button">录入新通话记录</button></a>
+    <a href="{{ url_for('review') }}"><button type="button" {% if not stats.pending %}disabled{% endif %}>处理待复核线索{% if stats.pending %}（{{ stats.pending }}）{% endif %}</button></a>
+    <a href="{{ url_for('leads') }}"><button type="button">查看全部线索</button></a>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>工作流说明</h3>
+  <p class="hint" style="line-height:1.8;">
+    录入电话沟通记录后，Agent 依次执行：意图识别 → 信息抽取 → 企业抬头还原 → 意向度评分 → 结构化输出。
+    高置信度线索直接放行；低置信度线索进入「待复核」队列，由人工修正企业抬头与意向等级，修正结果写入「反馈样本」形成闭环。
+  </p>
+</div>
+{% endblock %}

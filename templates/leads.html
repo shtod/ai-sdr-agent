@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}全部线索 · AI SDR Agent{% endblock %}
+{% block content %}
+<h2 class="page-title">全部线索</h2>
+
+<div class="panel">
+  {% if not leads %}
+    <div class="empty">还没有线索。去<a href="{{ url_for('add') }}">录入新通话记录</a>。</div>
+  {% else %}
+  <table>
+    <tr>
+      <th>编号</th><th>企业抬头</th><th>意向</th><th>置信度</th><th>需复核</th><th>状态</th><th>时间</th>
+    </tr>
+    {% for lead in leads %}
+    <tr>
+      <td>{{ lead.id }}</td>
+      <td>{{ lead.result.company_name or '未识别' }}</td>
+      <td><span class="badge {{ lead.result.intent_level or 'low' }}">{{ lead.result.intent_level or '未知' }}</span></td>
+      <td>{{ lead.confidence }}</td>
+      <td>{{ '是' if lead.need_review else '否' }}</td>
+      <td><span class="badge gray">{{ lead.status }}</span></td>
+      <td>{{ lead.created_at }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% endblock %}

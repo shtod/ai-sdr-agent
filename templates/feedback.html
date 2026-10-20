@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}反馈样本 · AI SDR Agent{% endblock %}
+{% block content %}
+<h2 class="page-title">反馈样本（修正记录）</h2>
+
+<div class="panel">
+  <p class="hint">每次人工修正都会记录到这里，形成标注样本，可用于回流优化 Prompt 与评分卡权重。</p>
+  {% if not corrections %}
+    <div class="empty">暂无修正记录。在「待复核」中修正线索后会出现在这里。</div>
+  {% else %}
+  <table>
+    <tr><th>编号</th><th>关联线索</th><th>字段</th><th>原值</th><th>修正为</th><th>时间</th></tr>
+    {% for c in corrections %}
+    <tr>
+      <td>{{ c.id }}</td>
+      <td>{{ c.lead_id }}</td>
+      <td>{{ c.field }}</td>
+      <td>{{ c.old_value or '—' }}</td>
+      <td>{{ c.new_value or '—' }}</td>
+      <td>{{ c.created_at }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% endblock %}
